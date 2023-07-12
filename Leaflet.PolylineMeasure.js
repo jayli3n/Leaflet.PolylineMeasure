@@ -423,7 +423,7 @@
 
             // initialize state
             this._arrPolylines = [];
-            this._measureControl = this._createControl (label, title, classes, this._container, this._toggleMeasure, this);
+            this._measureControl = this._createControl (label, title, classes, this._container, this.toggleMeasure, this);
             this._defaultControlBgColor = this._measureControl.style.backgroundColor;
             this._measureControl.setAttribute('id', _measureControlId);
             if (this.options.showClearControl) {
@@ -433,7 +433,7 @@
                 if (label.indexOf('&') != -1) {
                     classes.push(_unicodeClass);
                 }
-                this._clearMeasureControl = this._createControl (label, title, classes, this._container, this._clearAllMeasurements, this);
+                this._clearMeasureControl = this._createControl (label, title, classes, this._container, this.clearAllMeasurements, this);
                 this._clearMeasureControl.classList.add('polyline-measure-clearControl')
             }
 
@@ -443,7 +443,7 @@
                 var title = this.options.unitControlTitle.text + " [" + this.options.unitControlTitle[this.options.unit]  + "]";
 
                 var classes = this.options.unitControlClasses;
-                this._unitControl = this._createControl (label, title, classes, this._container, this._changeUnit, this);
+                this._unitControl = this._createControl (label, title, classes, this._container, this.changeUnit, this);
                 this._unitControl.setAttribute ('id', 'unitControlId');
             }
             return this._container;
@@ -454,7 +454,7 @@
          */
         onRemove: function () {
             if (this._measuring) {
-                this._toggleMeasure();
+                this.toggleMeasure();
             }
         },
 
@@ -478,7 +478,7 @@
          * Toggle the measure functionality on or off
          * @private
          */
-        _toggleMeasure: function () {
+        toggleMeasure: function () {
             this._measuring = !this._measuring;
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
@@ -515,7 +515,7 @@
                     this._map.doubleClickZoom.enable();
                 }
                 if(this.options.clearMeasurementsOnStop && this._layerPaint) {
-                    this._clearAllMeasurements();
+                    this.clearAllMeasurements();
                 }
                 // to remove temp. Line if line at the moment is being drawn and not finished while clicking the control
                 if (this._cntCircle !== 0) {
@@ -529,7 +529,7 @@
         /**
          * Clear all measurements from the map
          */
-        _clearAllMeasurements: function() {
+        clearAllMeasurements: function() {
             if ((this._cntCircle !== undefined) && (this._cntCircle !== 0)) {
                     this._finishPolylinePath();
             }
@@ -540,7 +540,7 @@
             this._map.fire('polylinemeasure:clear');
         },
 
-        _changeUnit: function() {
+        changeUnit: function() {
             // Retrieve the index of the next available unit of measurement.
             let indexCurrUnit = this.options.unitControlUnits.indexOf(this.options.unit);
             let indexNextUnit = (indexCurrUnit+1)%this.options.unitControlUnits.length;
@@ -606,7 +606,7 @@
                     return
                 }
                 if (!this._currentLine) {    // if NOT drawing a line, ESC will directly switch of measuring
-                    this._toggleMeasure();
+                    this.toggleMeasure();
                 } else {                     // if drawing a line, ESC will finish the current line
                     this._finishPolylinePath(e);
                 }
@@ -1474,7 +1474,7 @@
             // Hijack user actions to manually draw polylines
             polylinesArray.forEach((polyline) => {
                 // toggle draw state on:
-                this._toggleMeasure();
+                this.toggleMeasure();
                 // start line with first point of each polyline
                 this._startLine(polyline[0]);
                 // add subsequent points:
@@ -1485,7 +1485,7 @@
                     // on last point,
                     if (ind === polyline.length - 1) {
                         this._finishPolylinePath();
-                        this._toggleMeasure();
+                        this.toggleMeasure();
                     }
                 });
             });
