@@ -408,7 +408,7 @@
         onAdd: function(map) {
             var self = this
             // needed to avoid creating points by mouseclick during dragging the map
-            map.on('movestart ', function() {
+            map.on('movestart', function() {
               self._mapdragging = true
             })
             this._container = document.createElement('div');
@@ -478,8 +478,9 @@
          * Toggle the measure functionality on or off
          * @private
          */
-        toggleMeasure: function () {
-            this._measuring = !this._measuring;
+        toggleMeasure: function (enable) {
+            this._measuring = enable === undefined ? !this._measuring : enable;
+            
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
                 this._saveNonpolylineEvents ();
