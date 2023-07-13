@@ -597,8 +597,8 @@
                     if (this.options.showBearings === true) {
                         text = this.options.bearingTextIn+':---°<br>'+this.options.bearingTextOut+':---°';
                     }
-                    text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
-                    text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
+                    // text = text + '<p class="polyline-measure-tooltip-difference">+' + '0</p>';
+                    // text = text + '<p class="polyline-measure-tooltip-total">' + '0</p>';
                     this._arrPolylines[lineNr].tooltips [0]._icon.innerHTML = text;
                     this._arrPolylines[lineNr].tooltips.map (function (item, index) {
                         if (index >= 1) {
@@ -769,9 +769,9 @@
                 if (this.options.showBearings === true) {
                      textCurrent = this.options.bearingTextIn + ': ' + angleIn + '°<br>'+this.options.bearingTextOut+':---°';
                 }
-                textCurrent += '<div class="polyline-measure-tooltip-difference">+' + differenceRound.value + '&nbsp;' +  differenceRound.unit + '</div>';
+                textCurrent += '<p class="polyline-measure-tooltip-difference">+' + differenceRound.value + '&nbsp;' +  differenceRound.unit + '</p>';
             }
-            textCurrent += '<div class="polyline-measure-tooltip-total">' + totalRound.value + '&nbsp;' +  totalRound.unit + '</div>';
+            textCurrent += '<p class="polyline-measure-tooltip-total">' + totalRound.value + '&nbsp;' +  totalRound.unit + '</p>';
             currentTooltip._icon.innerHTML = textCurrent;
             if ((this.options.showBearings === true) && (prevTooltip)) {
                 var textPrev = prevTooltip._icon.innerHTML;
@@ -969,8 +969,8 @@
             if (this.options.showBearings === true) {
                 text = this.options.bearingTextIn+':---°<br>'+this.options.bearingTextOut+':---°';
             }
-            text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
-            text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
+            // text = text + '<p class="polyline-measure-tooltip-difference">+' + '0</p>';
+            // text = text + '<p class="polyline-measure-tooltip-total">' + '0</p>';
             firstTooltip._icon.innerHTML = text;
             this._currentLine.tooltips.push (firstTooltip);
             this._currentLine.circleCoords.last = last;
@@ -1265,8 +1265,8 @@
                     if (this.options.showBearings === true) {
                         text = text + this.options.bearingTextIn+':---°<br>'+this.options.bearingTextOut+':---°';
                     }
-                    text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
-                    text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
+                    // text = text + '<p class="polyline-measure-tooltip-difference">+' + '0</p>';
+                    // text = text + '<p class="polyline-measure-tooltip-total">' + '0</p>';
                     this._tooltipNew._icon.innerHTML = text;
                     this._map.off ('mousemove', this._mouseMove, this);
                     this._map.on ('mousemove', this._resumeFirstpointMousemove, this);
@@ -1331,8 +1331,8 @@
                         if (this.options.showBearings === true) {
                             text = this.options.bearingTextIn+':---°<br>'+this.options.bearingTextOut+':---°';
                         }
-                        text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
-                        text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
+                        // text = text + '<p class="polyline-measure-tooltip-difference">+' + '0</p>';
+                        // text = text + '<p class="polyline-measure-tooltip-total">' + '0</p>';
                         this._arrPolylines[lineNr].tooltips [0]._icon.innerHTML = text;
                         // if last Circle is being removed
                     } else if (circleNr === this._arrPolylines[lineNr].circleCoords.length) {
@@ -1404,8 +1404,8 @@
                         if (this.options.showBearings === true) {
                             text = this.options.bearingTextIn+':---°<br>'+this.options.bearingTextOut+':---°';
                         }
-                        text = text + '<div class="polyline-measure-tooltip-difference">+' + '0</div>';
-                        text = text + '<div class="polyline-measure-tooltip-total">' + '0</div>';
+                        // text = text + '<p class="polyline-measure-tooltip-difference">+' + '0</p>';
+                        // text = text + '<p class="polyline-measure-tooltip-total">' + '0</p>';
                         this._currentLine.tooltips [0]._icon.innerHTML = text;
                         // if last Circle is being removed
                     } else if (circleNr === this._currentLine.circleCoords.length) {
