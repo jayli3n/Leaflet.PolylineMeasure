@@ -423,7 +423,7 @@
 
             // initialize state
             this._arrPolylines = [];
-            this._measureControl = this._createControl (label, title, classes, this._container, this.toggleMeasure, this);
+            this._measureControl = this._createControl (label, title, classes, this._container, function() { this.toggleMeasure() }, this);
             this._defaultControlBgColor = this._measureControl.style.backgroundColor;
             this._measureControl.setAttribute('id', _measureControlId);
             if (this.options.showClearControl) {
@@ -480,7 +480,7 @@
          */
         toggleMeasure: function (enable) {
             this._measuring = enable === undefined ? !this._measuring : enable;
-            
+
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
                 this._saveNonpolylineEvents ();
@@ -548,13 +548,20 @@
 
             // Update the unit of measurement.
             this.options.unit = this.options.unitControlUnits[indexNextUnit];
-            this._unitControl.innerHTML = this.options.unitControlLabel[this.options.unit];
+            this._unitControl.innerHTML = this.getUnitLabel();
             this._unitControl.title = this.options.unitControlTitle.text +" [" + this.options.unitControlTitle[this.options.unit]  + "]";
 
             if (this._currentLine) {
                 this._computeDistance(this._currentLine);
             }
+
             this._arrPolylines.map (this._computeDistance.bind(this));
+            this._map.fire('polylinemeasure:unit', { unit: this.getUnitLabel() });
+            return this.getUnitLabel()
+        },
+
+        getUnitLabel: function() {
+            return this.options.unitControlLabel[this.options.unit]
         },
 
         _computeDistance: function(line) {
