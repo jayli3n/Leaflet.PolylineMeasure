@@ -812,7 +812,7 @@
                     // html : "<img src='iconArrow.png' style='background:green; height:100%; vertical-align:top; transform:rotate("+ cssAngle +"deg)'>"  <<=== alternative method by the use of an image instead of a Unicode symbol.
                 html : "<div style = 'color:" + this.options.arrow.color + "; font-size: 16px; line-height: 16px; vertical-align:top; transform: rotate("+ cssAngle +"deg)'>&#x27a4;</div>"   // best results if iconSize = font-size = line-height and iconAnchor font-size/2 .both values needed to position symbol in center of L.divIcon for all font-sizes.
             });
-            var newArrowMarker = L.marker (center, {icon: iconArrow, zIndexOffset:-50}).addTo(this._layerPaint);  // zIndexOffset to draw arrows below tooltips
+            var newArrowMarker = L.marker (center, {icon: iconArrow, zIndexOffset:-50, pmIgnore: true}).addTo(this._layerPaint);  // zIndexOffset to draw arrows below tooltips
             if (!this._currentLine){  // just bind tooltip if not drawing line anymore, cause following the instruction of tooltip is just possible when not drawing a line
                 newArrowMarker.bindTooltip (this.options.tooltipTextAdd, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
             }
@@ -853,7 +853,8 @@
                 color: this.options.tempLine.color,
                 weight: this.options.tempLine.weight,
                 interactive: false,
-                dashArray: '8,8'
+                dashArray: '8,8',
+                pmIgnore: true
             }).addTo(this._layerPaint).bringToBack();
 
             var polylineState = this;   // use "polylineState" instead of "this" to allow measuring on 2 different maps the same time
@@ -870,7 +871,8 @@
                     // Style of fixed, polyline after mouse is clicked
                     color: this.options.fixedLine.color,
                     weight: this.options.fixedLine.weight,
-                    interactive: false
+                    interactive: false,
+                    pmIgnore: true
                 }).addTo(this._layerPaint).bringToBack(),
 
                 handleMarkers: function (latlng) {
@@ -885,7 +887,7 @@
                             lastCircleMarker.setStyle (polylineState.options.intermedCircle);
                         }
                     }
-                    var newCircleMarker = new L.CircleMarker (latlng, polylineState.options.currentCircle).addTo(polylineState._layerPaint);
+                    var newCircleMarker = new L.CircleMarker (latlng, { ...polylineState.options.currentCircle, pmIgnore: true }).addTo(polylineState._layerPaint);
                     newCircleMarker.bindTooltip (polylineState.options.tooltipTextFinish + polylineState.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
                     newCircleMarker.cntLine = polylineState._currentLine.id;
                     newCircleMarker.cntCircle = polylineState._cntCircle;
@@ -898,7 +900,8 @@
                 getNewToolTip: function(latlng) {
                     return L.marker (latlng, {
                         icon: icon,
-                        interactive: false
+                        interactive: false,
+                        pmIgnore: true
                     });
                 },
 
@@ -967,7 +970,8 @@
 
             var firstTooltip = L.marker (clickCoords, {
                 icon: icon,
-                interactive: false
+                interactive: false,
+                pmIgnore: true
             })
             firstTooltip.addTo(this._layerPaint);
             var text = '';
@@ -1033,7 +1037,8 @@
                     color: this.options.tempLine.color,
                     weight: this.options.tempLine.weight,
                     interactive: false,
-                    dashArray: '8,8'
+                    dashArray: '8,8',
+                    pmIgnore: true
                 }).addTo(this._layerPaint).bringToBack();
                 this._currentLine.tooltips.last()._icon.classList.remove ('polyline-measure-tooltip-end');   // remove extra CSS-class of previous, last tooltip
                 var tooltipNew = this._currentLine.getNewToolTip (e.latlng);
@@ -1061,7 +1066,7 @@
                 var lineNr = e.target.cntLine;
                 var arrowNr = e.target.cntArrow;
                 this._arrPolylines[lineNr].arrowMarkers [arrowNr].removeFrom (this._layerPaint);
-                var newCircleMarker = new L.CircleMarker (e.latlng, this.options.intermedCircle).addTo(this._layerPaint);
+                var newCircleMarker = new L.CircleMarker (e.latlng, { ...this.options.intermedCircle, pmIgnore: true }).addTo(this._layerPaint);
                 newCircleMarker.cntLine = lineNr;
                 newCircleMarker.on ('mousedown', this._dragCircle, this);
                 newCircleMarker.bindTooltip (this.options.tooltipTextMove + this.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
@@ -1089,7 +1094,8 @@
                         className: 'polyline-measure-tooltip',
                         iconAnchor: [-4, -4]
                     }),
-                    interactive: false
+                    interactive: false,
+                    pmIgnore: true
                 });
                 this._tooltipNew.addTo(this._layerPaint);
                 this._arrPolylines[lineNr].tooltips.splice (arrowNr+1, 0, this._tooltipNew);
@@ -1214,7 +1220,7 @@
             this._arrPolylines[lineNr].circleMarkers [0].setStyle (this.options.intermedCircle);
             this._arrPolylines[lineNr].circleMarkers [0].unbindTooltip();
             this._arrPolylines[lineNr].circleMarkers [0].bindTooltip (this.options.tooltipTextMove + this.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
-            var newCircleMarker = new L.CircleMarker (e.latlng, this.options.startCircle).addTo(this._layerPaint);
+            var newCircleMarker = new L.CircleMarker (e.latlng, { ...this.options.startCircle, pmIgnore: true }).addTo(this._layerPaint);
             newCircleMarker.cntLine = lineNr;
             newCircleMarker.cntCircle = 0;
             newCircleMarker.on ('mousedown', this._dragCircle, this);
@@ -1256,14 +1262,16 @@
                         color: this.options.tempLine.color,
                         weight: this.options.tempLine.weight,
                         interactive: false,
-                        dashArray: '8,8'
+                        dashArray: '8,8',
+                        pmIgnore: true
                     }).addTo(this._layerPaint).bringToBack();
                     this._tooltipNew = L.marker (currentCircleCoords, {
                         icon: L.divIcon({
                             className: 'polyline-measure-tooltip',
                             iconAnchor: [-4, -4]
                         }),
-                        interactive: false
+                        interactive: false,
+                        pmIgnore: true
                     });
                     this._tooltipNew.addTo(this._layerPaint);
                     var text='';
