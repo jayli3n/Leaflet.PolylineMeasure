@@ -479,7 +479,12 @@
          * @private
          */
         toggleMeasure: function (enable) {
-            this._measuring = enable === undefined ? !this._measuring : enable;
+            // If desire state and current state match, skip
+            if (enable !== undefined && enable === !!this._measuring) {
+                return
+            }
+
+            this._measuring = !this._measuring;
 
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
