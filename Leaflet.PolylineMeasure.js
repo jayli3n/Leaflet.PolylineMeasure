@@ -408,8 +408,9 @@
         onAdd: function(map) {
             var self = this
             // needed to avoid creating points by mouseclick during dragging the map
-            map.on('movestart', function() {
-              self._mapdragging = true
+            map.on ('movestart', function() {
+                if (!this._measuring) return
+                self._mapdragging = true
             })
             this._container = document.createElement('div');
             this._container.classList.add('leaflet-bar');
@@ -488,7 +489,15 @@
 
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
-                this._saveNonpolylineEvents ();
+
+                // Re-bind all the tooltips back onto each circle marker
+                this._arrPolylines.forEach(pl => {
+                    pl.circleMarkers.forEach(cm => {
+                        cm.getTooltip().setOpacity(0.7)
+                    })
+                })
+
+                // this._saveNonpolylineEvents ();
                 this._measureControl.classList.add ('polyline-measure-controlOnBgColor');
                 this._measureControl.style.backgroundColor = this.options.backgroundColor;
                 this._measureControl.title = this.options.measureControlTitleOff;
@@ -505,7 +514,7 @@
                 L.DomEvent.on (document, 'keydown', this._onKeyDown, this);
                 this._resetPathVariables();
             } else {   // if measuring is going to be switched off
-                this._savePolylineEvents ();
+                // this._savePolylineEvents ();
                 this._measureControl.classList.remove ('polyline-measure-controlOnBgColor');
                 this._measureControl.style.backgroundColor = this._defaultControlBgColor;
                 this._measureControl.title = this.options.measureControlTitleOn;
@@ -527,6 +536,14 @@
                 if (this._cntCircle !== 0) {
                     this._finishPolylinePath();
                 }
+
+                // Unbind all the tooltips from each circle marker, we don't want it showing up on hover
+                // save the tooltip to a temp property for future re-binding
+                this._arrPolylines.forEach(pl => {
+                    pl.circleMarkers.forEach(cm => {
+                        cm.getTooltip().setOpacity(0)
+                    })
+                })
             }
             // allow easy to connect the measure control to the app, f.e. to disable the selection on the map when the measurement is turned on
             this._map.fire('polylinemeasure:toggle', { status: this._measuring });
@@ -587,6 +604,8 @@
          * @private
          */
         _onKeyDown: function (e) {
+            if (!this._measuring) return
+            
             if (e.keyCode === 27) {
                 // if resuming a line at its first point is active
                 if (this._resumeFirstpointFlag === true) {
@@ -827,6 +846,8 @@
          * @private
          */
         _mouseMove: function (e) {
+            if (!this._measuring) return
+
             var mouseCoords = e.latlng;
             this._map.on ('click', this._mouseClick, this);  // necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag.
             if(!mouseCoords || !this._currentLine) {
@@ -889,7 +910,7 @@
                         }
                     }
                     var newCircleMarker = new L.CircleMarker (latlng, { ...polylineState.options.currentCircle, pmIgnore: true }).addTo(polylineState._layerPaint);
-                    newCircleMarker.bindTooltip (polylineState.options.tooltipTextFinish + polylineState.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
+                    newCircleMarker.bindTooltip (polylineState.options.tooltipTextFinish + polylineState.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'}).openTooltip();
                     newCircleMarker.cntLine = polylineState._currentLine.id;
                     newCircleMarker.cntCircle = polylineState._cntCircle;
                     polylineState._cntCircle++;
@@ -996,6 +1017,8 @@
          * @private
          */
         _mouseClick: function (e) {
+            if (!this._measuring) return
+
             // skip if there are no coords provided by the event, or this event's screen coordinates match those of finishing CircleMarker for the line we just completed
             if (!e.latlng || (this._finishCircleScreencoords && this._finishCircleScreencoords.equals(e.containerPoint))) {
                 return;
@@ -1032,6 +1055,8 @@
          * @private
          */
         _resumePolylinePath: function (e) {
+            if (!this._measuring) return
+            
             if (e.originalEvent.ctrlKey === true || e.originalEvent.metaKey === true) {    // just resume if user pressed the CTRL-Key (or metaKey on Mac) while clicking onto the last circle
                 this._currentLine = this._arrPolylines [e.target.cntLine];
                 this._rubberlinePath = L.polyline ([], {
@@ -1064,6 +1089,8 @@
         },
 
         _clickedArrow: function(e) {
+            if (!this._measuring) return
+            
             if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) {  // (metaKey for Mac)
                 var lineNr = e.target.cntLine;
                 var arrowNr = e.target.cntArrow;
@@ -1071,7 +1098,7 @@
                 var newCircleMarker = new L.CircleMarker (e.latlng, { ...this.options.intermedCircle, pmIgnore: true }).addTo(this._layerPaint);
                 newCircleMarker.cntLine = lineNr;
                 newCircleMarker.on ('mousedown', this._dragCircle, this);
-                newCircleMarker.bindTooltip (this.options.tooltipTextMove + this.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
+                newCircleMarker.bindTooltip (this.options.tooltipTextMove + this.options.tooltipTextDelete, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'}).openTooltip();
                 this._arrPolylines[lineNr].circleMarkers.splice (arrowNr+1, 0, newCircleMarker);
                 this._arrPolylines[lineNr].circleMarkers.map (function (item, index) {
                     item.cntCircle = index;
@@ -1118,6 +1145,8 @@
         },
 
         _dragCircleMouseup: function () {
+            if (!this._measuring) return
+            
             // bind new popup-tooltip to the last CircleMArker if dragging finished
             if ((this._circleNr === 0) || (this._circleNr === this._arrPolylines[this._lineNr].circleCoords.length-1)) {
                this._e1.target.bindTooltip (this.options.tooltipTextMove + this.options.tooltipTextDelete + this.options.tooltipTextResume, {direction:'top', opacity:0.7, className:'polyline-measure-popupTooltip'});
@@ -1134,6 +1163,8 @@
         },
 
         _dragCircleMousemove: function (e2) {
+            if (!this._measuring) return
+            
             var mouseNewLat = e2.latlng.lat;
             var mouseNewLng = e2.latlng.lng;
             var latDifference = mouseNewLat - this._mouseStartingLat;
@@ -1188,6 +1219,8 @@
         },
 
         _resumeFirstpointMousemove: function (e) {
+            if (!this._measuring) return
+            
             var lineNr = this._lineNr;
             this._map.on ('click', this._resumeFirstpointClick, this);  // necassary for _dragCircle. If switched on already within _dragCircle an unwanted click is fired at the end of the drag.
             var mouseCoords = e.latlng;
@@ -1214,6 +1247,8 @@
         },
 
         _resumeFirstpointClick: function (e) {
+            if (!this._measuring) return
+            
             var lineNr = this._lineNr;
             this._resumeFirstpointFlag = false;
             this._map.off ('mousemove', this._resumeFirstpointMousemove, this);
@@ -1248,6 +1283,8 @@
 
         // not just used for dragging Cirles but also for deleting circles and resuming line at its starting point.
         _dragCircle: function (e1) {
+            if (!this._measuring) return
+            
             var arcpoints = this._arcpoints;
             if (e1.originalEvent.ctrlKey || e1.originalEvent.metaKey) {   // if user wants to resume drawing a line. metaKey for Mac
                 this._map.off ('click', this._mouseClick, this); // to avoid unwanted creation of a new line if CTRL-clicked onto a point
