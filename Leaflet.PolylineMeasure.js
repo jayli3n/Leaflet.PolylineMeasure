@@ -570,7 +570,7 @@
 
             // Update the unit of measurement.
             this.options.unit = this.options.unitControlUnits[indexNextUnit];
-            this._unitControl.innerHTML = this.getUnitLabel();
+            this._unitControl.innerHTML = this.options.unitControlLabel[this.options.unit];
             this._unitControl.title = this.options.unitControlTitle.text +" [" + this.options.unitControlTitle[this.options.unit]  + "]";
 
             if (this._currentLine) {
@@ -578,12 +578,12 @@
             }
 
             this._arrPolylines.map (this._computeDistance.bind(this));
-            this._map.fire('polylinemeasure:unit', { unit: this.getUnitLabel() });
-            return this.getUnitLabel()
+            this._map.fire('polylinemeasure:unit', { unit: this.getCurrentUnit() });
+            return this.getCurrentUnit()
         },
 
-        getUnitLabel: function() {
-            return this.options.unitControlLabel[this.options.unit]
+        getCurrentUnit: function() {
+            return this.options.unit
         },
 
         _computeDistance: function(line) {
