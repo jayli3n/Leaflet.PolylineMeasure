@@ -1329,6 +1329,7 @@
 
             // if user wants to delete a circle
             if (e1.originalEvent.shiftKey) {    // it's not possible to use "ALT-Key" instead, cause this won't work in some Linux distributions (there it's the default hotkey for moving windows)
+                this._map.off ('click', this._mouseClick, this); // to avoid unwanted creation of a new line if SHIFT-clicked onto a point
                 this._lineNr = e1.target.cntLine;
                 var lineNr = this._lineNr;
                 this._circleNr = e1.target.cntCircle;
