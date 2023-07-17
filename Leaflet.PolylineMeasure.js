@@ -459,20 +459,66 @@
             }
         },
 
-        // turn off all Leaflet-own events of markers (popups, tooltips). Needed to allow creating points on top of markers
-        _saveNonpolylineEvents: function () {
-            this._nonpolylineTargets = this._map._targets;
-            if (typeof this._polylineTargets !== 'undefined') {
-                this._map._targets = this._polylineTargets;
-            } else {
-                this._map._targets ={};
+        // turn off all Leaflet-own click events. Needed to allow creating points on top of markers
+        _disableClickEvents: function () {
+            // Initialize
+            if (!this.savedLayerInfo) {
+                this.savedLayerInfo = {}
             }
+
+            this._map.eachLayer((layer) => {
+                // Only save if memory is blank
+                if (!this.savedLayerInfo[layer._leaflet_id]) {
+                    this.savedLayerInfo[layer._leaflet_id] = {
+                        click: layer._events?.click?.length ? [...layer._events.click] : [],
+                        dblclick: layer._events?.dblclick?.length ? [...layer._events.dblclick] : [],
+                        mousedown: layer._events?.mousedown?.length ? [...layer._events.mousedown] : [],
+                        mouseup: layer._events?.mouseup?.length ? [...layer._events.mouseup] : [],
+                        mouseover: layer._events?.mouseover?.length ? [...layer._events.mouseover] : [],
+                        mouseout: layer._events?.mouseout?.length ? [...layer._events.mouseout] : [],
+                        contextmenu: layer._events?.contextmenu?.length ? [...layer._events.contextmenu] : [],
+                        interactive: layer.options.interactive
+                    }
+
+                    if(layer._events?.click?.length) layer._events.click = []
+                    if(layer._events?.dblclick?.length) layer._events.dblclick = []
+                    if(layer._events?.mousedown?.length) layer._events.mousedown = []
+                    if(layer._events?.mouseup?.length) layer._events.mouseup = []
+                    if(layer._events?.mouseover?.length) layer._events.mouseover = []
+                    if(layer._events?.mouseout?.length) layer._events.mouseout = []
+                    if(layer._events?.contextmenu?.length) layer._events.contextmenu = []
+                    layer.options.interactive = false
+                    
+                    if (layer._icon) layer._icon.style.pointerEvents = "none"
+                }
+            })
         },
 
         // on disabling the measure add-on, save Polyline-measure events and enable the former Leaflet-own events again
-        _savePolylineEvents: function () {
-                this._polylineTargets = this._map._targets;
-                this._map._targets = this._nonpolylineTargets;
+        _restoreClickEvents: function () {
+            // Initialize
+            if (!this.savedLayerInfo) {
+                this.savedLayerInfo = {}
+            }
+
+            this._map.eachLayer((layer) => {
+                const memory = this.savedLayerInfo[layer._leaflet_id]
+
+                // Restore event to layer and clear memory
+                if (memory && layer._events) {
+                    layer._events.click = [...memory.click]
+                    layer._events.dblclick = [...memory.dblclick]
+                    layer._events.mousedown = [...memory.mousedown]
+                    layer._events.mouseup = [...memory.mouseup]
+                    layer._events.mouseover = [...memory.mouseover]
+                    layer._events.mouseout = [...memory.mouseout]
+                    layer._events.contextmenu = [...memory.contextmenu]
+                    layer.options.interactive = memory.interactive
+
+                    this.savedLayerInfo[layer._leaflet_id] = undefined
+                    if (layer._icon) layer._icon.style.pointerEvents = ""
+                }
+            })
         },
 
         /**
@@ -489,6 +535,7 @@
 
             if (this._measuring) {   // if measuring is going to be switched on
                 this._mapdragging = false;
+                this._disableClickEvents ();
 
                 // Re-bind all the tooltips back onto each circle marker
                 this._arrPolylines.forEach(pl => {
@@ -497,7 +544,6 @@
                     })
                 })
 
-                this._saveNonpolylineEvents ();
                 this._measureControl.classList.add ('polyline-measure-controlOnBgColor');
                 this._measureControl.style.backgroundColor = this.options.backgroundColor;
                 this._measureControl.title = this.options.measureControlTitleOff;
@@ -514,7 +560,7 @@
                 L.DomEvent.on (document, 'keydown', this._onKeyDown, this);
                 this._resetPathVariables();
             } else {   // if measuring is going to be switched off
-                this._savePolylineEvents ();
+                this._restoreClickEvents ();
                 this._measureControl.classList.remove ('polyline-measure-controlOnBgColor');
                 this._measureControl.style.backgroundColor = this._defaultControlBgColor;
                 this._measureControl.title = this.options.measureControlTitleOn;
