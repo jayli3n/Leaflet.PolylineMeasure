@@ -467,6 +467,8 @@
             }
 
             this._map.eachLayer((layer) => {
+                if (this._layerPaint?.hasLayer(layer._leaflet_id)) return
+
                 // Only save if memory is blank
                 if (!this.savedLayerInfo[layer._leaflet_id]) {
                     this.savedLayerInfo[layer._leaflet_id] = {
@@ -502,6 +504,8 @@
             }
 
             this._map.eachLayer((layer) => {
+                if (this._layerPaint?.hasLayer(layer._leaflet_id)) return
+
                 const memory = this.savedLayerInfo[layer._leaflet_id]
 
                 // Restore event to layer and clear memory
